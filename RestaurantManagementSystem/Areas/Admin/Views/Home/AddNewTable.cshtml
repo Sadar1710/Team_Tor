@@ -1,0 +1,103 @@
+﻿@model RestaurantManagementSystem.Areas.Admin.ViewModels.TableVm
+@{
+    ViewData["Title"] = "AddNewTable";
+}
+<style>
+    #formdiv {
+        background-color: ghostwhite;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px 0 rgba(0,0,0,0.2),0 5px 6px 0 rgba(0,0,0,0.4);
+        padding: 4%;
+    }
+
+        #formdiv h1 {
+            text-align: center;
+            padding: 4%;
+        }
+
+        #formdiv button {
+            float: right;
+        }
+        #formdiv textarea {
+            height: 15vh;
+        }
+</style>
+<form class="row mt-5" asp-area="Admin" asp-controller="Home"
+      asp-action="AddNewTable" method="post">
+    <div class="col-12 col-sm-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2 col-xl-8" id="formdiv">
+        @*@if (ViewBag.Validation != null)
+        {
+            <div id="mytoastr" class="alert alert-danger toast" role="alert">
+                @ViewBag.Validation
+            </div>
+        }
+        @if (ViewBag.Success != null)
+        {
+            <div id="mytoastr" class="alert alert-success toast" role="alert">
+                @ViewBag.Success
+            </div>
+        }*@
+        <h1>Set New Table</h1>
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <label>Set the Table Name/No.</label>
+                    <input class="form-control" placeholder="Table No." asp-for="TableNumber" />
+                    <span asp-validation-for="TableNumber" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <label>Set Capacity</label>
+                    <input class="form-control" placeholder="Capacity" asp-for="TableCapacity" />
+                    <span asp-validation-for="TableCapacity" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <label>Set Booking Price</label>
+                    <input class="form-control" placeholder="Booking Price" asp-for="BookingPrice" />
+                    <span asp-validation-for="BookingPrice" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-dark">Add</button>
+    </div>
+</form>
+
+@section Scripts{
+
+    <script type="text/javascript">
+         //$(document).ready(function () {
+         //           $('#mytoastr').toast({ delay: 2000 });
+         //           $('#mytoastr').toast('show');
+         //});  
+         var a = null;
+        var b = null;
+         $(document).ready(function () {
+                  
+             a ="@ViewBag.Validation"
+             b ="@ViewBag.Success"
+             console.log(a);
+             if (a.length !== 0) {
+                 Swal.fire({
+                     position: 'top-center',
+                     icon: 'warning',
+                     title: a,
+                     showConfirmButton: false,
+                     timer: 2000
+                 })
+
+             }
+             else if (b.length !== 0) {
+                  Swal.fire({
+                     position: 'top-center',
+                     icon: 'success',
+                     title: b,
+                     showConfirmButton: false,
+                     timer: 2000
+                 })
+             }
+         });
+    </script>
+}

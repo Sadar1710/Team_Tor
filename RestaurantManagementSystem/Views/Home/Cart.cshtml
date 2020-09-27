@@ -1,0 +1,377 @@
+﻿@using RestaurantManagementSystem.Helper
+@using RestaurantManagementSystem.Areas.Customer.ViewModels
+@*@model List<RestaurantManagementSystem.Areas.Admin.Models.Table>*@
+﻿﻿@{
+
+    Layout = null;
+}
+
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Resturant Management System</title>
+    <environment include="Development">
+        <link rel="stylesheet" href="~/Assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="~/Assets/css/all.css">
+        <link rel="stylesheet" href="~/css/site.css" />
+    </environment>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url(/images/hermes-rivera-Ww8eQWjMJWk-unsplash.jpg);
+            background-attachment: fixed;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-3">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-10 offset-xl-1 p-3 mb-2" style="background:linear-gradient(rgba(255,255,255,0.6),rgba(255,255,255,0.6));">
+            <h2 class="text-center">My Food Cart</h2>
+        </div>
+        <div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-10 offset-xl-1">
+            <div class="row d-flex justify-content-center">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8"
+                     style="background:linear-gradient(rgba(255,255,255,0.8),rgba(255,255,255,0.8));">
+                    <div class="table-responsive">
+                        <table class="table col-lg-12 col-xl-12 d-flex justify-content-center">
+
+                            <tbody>
+                                @{var a = Context.Session.Get<List<FoodCart>>("FoodS");}
+                                @if (a != null)
+                                {
+                                    @foreach (var item in a)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <img height=100 width=100 class="img-fluid mr-4" src="~/images/breakfast (1).svg" />
+                                            </td>
+                                            <td class="m-3">
+                                                <h5>@item.FoodName</h5>
+                                                <hr />
+                                                <p>@item.FoodDescription</p>
+                                                <p>Price: @item.FoodPrice tk<input id="Ta" type="hidden" value="@item.FoodPrice" /></p>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group m-3">
+                                                    <button id="Minus" class="btn btn-danger" value="-"><strong>-</strong></button>
+                                                    <input id="Quantity" type="text" value="@item.Quantity" class="form-control" readonly />
+                                                    <button id="Plus" class="btn btn-success" value="+"><strong>+</strong></button>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <h5>Total Price</h5>
+                                                <hr />
+                                                @{ var ab = item.Quantity * item.FoodPrice;}
+                                                <p id="totalprice">@ab tk</p>
+
+                                            </td>
+                                            <td>
+                                                <a id="DeleteMe"><i class="fa fa-trash-alt mt-3" style="color:red;font-size:1.5em;"></i></a>
+                                            </td>
+                                            <td class="text-hide">@item.FoodItemId</td>
+                                        </tr>
+                                    }
+
+                                    <tr>
+                                        <td colspan="3" class="text-right">
+                                            Total :
+                                        </td>
+                                        <td id="FinalTotal">@a.Sum(s => s.FoodPrice * s.Quantity) tk</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-right">
+                                            Discount :
+                                        </td>
+                                        <td id="DiscountBasedOnCoupon">0 %</td>
+
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-right">
+                                            Total Payable :
+                                        </td>
+                                        <td id="DiscountWiseFinalTotal">@a.Sum(s => s.FoodPrice * s.Quantity) tk</td>
+
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td>
+                                            No Food
+
+
+
+                                        </td>
+
+                                    </tr>
+
+
+                                }
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                    <div class="card-footer d-flex justify-content-end">
+                        <form id="FoodOrderConfirmForm" asp-area="Customer" asp-action="Order" method="post" asp-controller="Home">
+                            <a class="btn btn-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                                Add More Food
+                            </a>
+                            <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#CouponModalCenter">
+                                Apply Coupon
+                            </button>
+                            <div class="modal fade" id="CouponModalCenter" tabindex="-1" role="dialog" aria-labelledby="CouponModalCenterTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="text-center" id="exampleModalLongTitle">Apply Coupon to get Discount</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+
+                                            <div class="form-inline text-center">
+                                                <div class="form-group">
+                                                    <label>Coupon Code</label>
+                                                    <input id="CouponCode" style="width:150px;margin-right:20px" class="form-control" type="text" placeholder="Coupon Code" />
+                            
+                                                    <div class="form-group ml-auto">
+                                                        <span id="ErrorCoupon" class="text-danger"></span>
+                                                        <span id="SuccessCoupon" class="text-success"></span>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                                            <button id="CouponApplyButton" type="button" class="btn btn-dark" data-dismiss="modal">Apply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                <button type="submit" class="btn btn-dark" id="BtnConfirmOrder">
+                                    Confirm Order
+                                </button>
+                            }
+                            else
+                            {
+                                <a class="btn btn-dark" asp-area="" asp-controller="Account" asp-action="Login">
+                                    Confirm Order
+                                </a>
+                            }
+
+                        </form>
+
+                    </div>
+                </div>
+                <div class="col-12 col-sm-12 col-md-12 col-lg-3 ml-lg-3 col-xl-3 ml-xl-3"
+                     style="background:linear-gradient(rgba(255,255,255,0.8),rgba(255,255,255,0.8));">
+                    <h4 class="text-center">
+                        Reserve a Table
+                    </h4>
+                    <hr />
+
+                    <div class="row d-flex justify-content-center" id="TablesImage">
+                        @{var T = Context.Session.Get<List<TableResevationCart>>("AvailableTable");}
+                        @if (T != null)
+                        {
+                            int i;
+                            @for (i = 0; i < T.Count; i++)
+                            {
+
+                                @if (T[i].BookedStatus == false)
+                                {
+                                    <div class="col-2 col-sm-2 col-md-1 col-lg-3 col-xl-3">
+                                        <img data-poss="true" data-conf="false" src="~/images/table (5).svg" class="img-fluid" alt="@T[i].TableId" />
+                                        @T[i].TableName
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-2 col-sm-2 col-md-1 col-lg-3 col-xl-3">
+                                        <img data-poss="false" data-conf="true" src="~/images/table (4).svg" class="img-fluid" alt="@T[i].TableId" />
+                                        @T[i].TableName
+                                    </div>
+
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-2 col-sm-2 col-md-1 col-lg-3 col-xl-3">
+                                <img src="~/images/table (3).svg" class="img-fluid" />
+                            </div>
+
+                            <div class="col-2 col-sm-2 col-md-1 col-lg-3 col-xl-3">
+                                <img src="~/images/table (4).svg" class="img-fluid" />
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer d-flex justify-content-end mt-auto">
+                        <button id="ReserveButton" type="button" class="btn btn-dark" data-toggle="modal" data-target="#exampleModalCenter">
+                            Reserve
+                        </button>
+                        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="text-center" id="exampleModalLongTitle">Set Reservation Schedule for <span id="TableName"></span></h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form asp-area="" asp-controller="" asp-action="" method="post">
+                                            <div class="form-inline">
+                                                <div class="form-group">
+                                                    <label>Reserve From</label>
+                                                    <input id="FromTime" class="form-control" type="time" />
+                                                </div>
+                                                <div class="form-group ml-auto">
+                                                    <label>Reserve To</label>
+                                                    <input id="ToTime" class="form-control" type="time" />
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                                        <button id="ConfirmTime" type="button" class="btn btn-dark" data-dismiss="modal">Confirm</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/TableReservation.js" asp-append-version="true"></script>
+    <script src="~/js/FoodCartControll.js" asp-append-version="true"></script>
+    <script src="~/SweetAlert/sweetalert2.all.min.js" asp-append-version="true"></script>
+    <script type="text/javascript">
+
+        $("#BtnConfirmOrder").click(function () {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You are going to order food",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Order'
+            }).then((result) => {
+                if (result.value) {
+                    $("#FoodOrderConfirmForm").submit();
+                }
+            })
+        });
+
+
+    </script>
+    <script type="text/javascript">
+
+        $("#CouponApplyButton").click(function () {
+
+            var Coupon = $("#CouponCode").val();
+           
+            if (Coupon.length !== 0) {
+
+                var url = "/Home/CouponCheck";
+               
+                var DiscountPercentage = 0.0;
+                var DiscountWiseFinalTotal = 0.0;
+                var url3 = "/Home/CartCurrentStatus";
+                
+                $.getJSON(url, { Coupon: Coupon }, function (data) {
+                    if (data == true) {
+                        var url2 = "/Home/GetDiscountByCoupon";
+                        $.getJSON(url2, function (data) {
+                            DiscountPercentage = data;
+                            $.getJSON(url3, function (data) {
+                                var a = data;
+                                DiscountWiseFinalTotal = (Number(a) - (Number(a) * Number(DiscountPercentage) / 100));
+                                $("#DiscountWiseFinalTotal").html(DiscountWiseFinalTotal + " tk");
+
+                            });
+                            $("#DiscountBasedOnCoupon").html(data + " %");
+                            
+                        });
+                        $("#SuccessCoupon").html("Success");//Coupone Status
+                        $("#ErrorCoupon").html(" ");//Coupone Status
+                        
+
+                    }
+                    else {
+                        $("#ErrorCoupon").html("Invalid");//Coupone Status
+                        $("#SuccessCoupon").html(" ")
+                    }
+              });
+
+            }
+            
+           
+        });
+
+
+    </script>
+    <script type="text/javascript">
+        var DiscountWiseFinalTotal = 0.0;
+        var DiscountPercentage = 0.0;
+            var url = "/Home/GetDiscountByCoupon";
+        $.getJSON(url, function (data) { 
+            DiscountPercentage = data;
+            $("#DiscountBasedOnCoupon").html(data + " %");
+            var url2 = "/Home/CartCurrentStatus";
+            $.getJSON(url2, function (data) {
+                var a = data;
+
+                DiscountWiseFinalTotal = (Number(a) - (Number(a) * Number(DiscountPercentage) / 100));
+
+                $("#DiscountWiseFinalTotal").html(DiscountWiseFinalTotal + " tk");
+
+            });
+        });
+            
+        
+            
+
+
+
+
+
+
+    </script>
+
+
+
+
+
+</body>
+</html>
+
