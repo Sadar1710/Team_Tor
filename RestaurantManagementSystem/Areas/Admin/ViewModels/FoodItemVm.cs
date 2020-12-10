@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace RestaurantManagementSystem.Areas.Admin.ViewModels
         [Required]
         public int MealHourId { get; set; }
         public string MealHourName  { get; set; }
-        
+        public string ExistingPhoto { get; set; }
+        public IFormFile Photopath { get; set; }
+
     }
 }

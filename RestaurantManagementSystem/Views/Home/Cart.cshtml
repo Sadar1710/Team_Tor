@@ -302,12 +302,10 @@
            
             if (Coupon.length !== 0) {
 
-                var url = "/Home/CouponCheck";
-               
+                var url = "/Home/CouponCheck";              
                 var DiscountPercentage = 0.0;
                 var DiscountWiseFinalTotal = 0.0;
-                var url3 = "/Home/CartCurrentStatus";
-                
+                var url3 = "/Home/CartCurrentStatus";                
                 $.getJSON(url, { Coupon: Coupon }, function (data) {
                     if (data == true) {
                         var url2 = "/Home/GetDiscountByCoupon";
@@ -319,26 +317,18 @@
                                 $("#DiscountWiseFinalTotal").html(DiscountWiseFinalTotal + " tk");
 
                             });
-                            $("#DiscountBasedOnCoupon").html(data + " %");
-                            
+                            $("#DiscountBasedOnCoupon").html(data + " %");                            
                         });
                         $("#SuccessCoupon").html("Success");//Coupone Status
-                        $("#ErrorCoupon").html(" ");//Coupone Status
-                        
-
+                        $("#ErrorCoupon").html(" ");//Coupone Status                        
                     }
                     else {
                         $("#ErrorCoupon").html("Invalid");//Coupone Status
                         $("#SuccessCoupon").html(" ")
                     }
               });
-
-            }
-            
-           
+            }                      
         });
-
-
     </script>
     <script type="text/javascript">
         var DiscountWiseFinalTotal = 0.0;

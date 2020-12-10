@@ -1,8 +1,10 @@
 ﻿ using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,9 +22,14 @@ namespace RestaurantManagementSystem.Areas.Admin.Controllers
     public class HomeController : Controller
     {
         private readonly DatabaseContext _context;
-        public HomeController(DatabaseContext context)
+        [Obsolete]
+        private readonly IHostingEnvironment hostingEnvironment;
+
+        [Obsolete]
+        public HomeController(DatabaseContext context, IHostingEnvironment hostingEnvironment)
         {
             _context = context;
+            this.hostingEnvironment = hostingEnvironment;
         }
         public async Task<IActionResult> Index()
         {
@@ -168,6 +175,7 @@ namespace RestaurantManagementSystem.Areas.Admin.Controllers
             return View();
         }
         [HttpPost]
+        [Obsolete]
         public IActionResult AddFoodItem(FoodItemVm a)
         {
             var valid = _context.FoodItems.AsNoTracking().
@@ -180,6 +188,7 @@ namespace RestaurantManagementSystem.Areas.Admin.Controllers
                 return View();
                 //RedirectToAction("AddFoodItem");
             }
+            string uniqueFileName = UploadedFile(a);
             FoodItem p = new FoodItem()
             {
                 FoodName = a.FoodName,
@@ -187,6 +196,7 @@ namespace RestaurantManagementSystem.Areas.Admin.Controllers
                 Price = a.Price,
                 FoodItemId = a.FoodItemId,
                 MealHourId = a.MealHourId,
+                PhotoPath = uniqueFileName
             };
             _context.FoodItems.Add(p);
             _context.SaveChanges();
@@ -195,6 +205,22 @@ namespace RestaurantManagementSystem.Areas.Admin.Controllers
             ViewBag.MealHour = new SelectList(_context.MealHour.AsNoTracking().
               ToList(), "MealHourId", "MealHourTitle");
             return View();
+        }
+        [Obsolete]
+        private string UploadedFile(FoodItemVm model)
+        {
+            string uniqueFileName = null;
+            if (model.Photopath != null)
+            {
+                string uploadsFolder = Path.Combine(hostingEnvironment.WebRootPath, "images");
+                uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Photopath.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    model.Photopath.CopyTo(fileStream);
+                }
+            }
+            return uniqueFileName;
         }
         public IActionResult FoodItemList(int Page=1)
         {
@@ -210,8 +236,8 @@ namespace RestaurantManagementSystem.Areas.Admin.Controllers
                     MealHourName = item.MealHour.MealHourTitle,
                     Price = item.Price,
                     Description = item.Description,
-                    FoodItemId = item.FoodItemId
-
+                    FoodItemId = item.FoodItemId,
+                    ExistingPhoto=item.PhotoPath
                 };
                 s.Add(ab);
                 c++;
@@ -230,7 +256,8 @@ namespace RestaurantManagementSystem.Areas.Admin.Controllers
                 Price = foodItem.Price,
                 Description = foodItem.Description,
                 MealHourId = foodItem.MealHourId,
-                FoodName = foodItem.FoodName
+                FoodName = foodItem.FoodName,
+                ExistingPhoto = foodItem.PhotoPath
 
             };
             ViewBag.MealHour = new SelectList(_context.MealHour.AsNoTracking().
@@ -238,20 +265,29 @@ namespace RestaurantManagementSystem.Areas.Admin.Controllers
             return View(m);
         }
         [HttpPost]
+        [Obsolete]
         public IActionResult UpdateFoodItem(FoodItemVm a)
         {
-            
+            FoodItem foodItem = _context.FoodItems.AsNoTracking()
+                .Where(a => a.FoodItemId == a.FoodItemId).FirstOrDefault();
 
-            FoodItem p = new FoodItem()
+            foodItem.FoodName = a.FoodName;
+            foodItem.Description = a.Description;
+            foodItem.Price = a.Price;
+            foodItem.FoodItemId = a.FoodItemId;
+            foodItem.MealHourId = a.MealHourId;
+            if (a.Photopath != null)
             {
-                FoodName = a.FoodName,
-                Description = a.Description,
-                Price = a.Price,
-                FoodItemId = a.FoodItemId,
-                MealHourId = a.MealHourId,
+                if (a.ExistingPhoto != null)
+                {
+                    string filePath = Path.Combine(hostingEnvironment.WebRootPath,
+                                      "images", a.ExistingPhoto);
+                    System.IO.File.Delete(filePath);
+                }
+                foodItem.PhotoPath = UploadedFile(a);
+            }
 
-            };
-            _context.FoodItems.Update(p);
+            _context.FoodItems.Update(foodItem);
             _context.SaveChanges();
             ModelState.Clear();
             return RedirectToAction("FoodItemList");
@@ -370,8 +406,6 @@ namespace RestaurantManagementSystem.Areas.Admin.Controllers
         {
             var raw = _context.FoodItems.AsNoTracking().ToList();
             ViewBag.RawItem = new SelectList(raw, "FoodItemId", "FoodName");
-
-           
 
             foreach (var item in Rl.MaterialVms)
             {
@@ -662,8 +696,6 @@ namespace RestaurantManagementSystem.Areas.Admin.Controllers
             var p = s.OrderByDescending(s => s.Date);
             var list1 = p.ToPagedList(Page, 5);
             return View(list1);
-           
-
 
         }
     }

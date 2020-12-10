@@ -3,6 +3,7 @@
     ViewData["Title"] = "AddFoodItem";
 }
 <style>
+
     #formdiv {
         background-color: ghostwhite;
         border-radius: 8px;
@@ -23,10 +24,9 @@
             height: 15vh;
         }
 </style>
-<form class="row mt-5" asp-area="Admin" asp-controller="Home"
+<form enctype="multipart/form-data" class="row mt-5 forms-sample" asp-area="Admin" asp-controller="Home"
       asp-action="AddFoodItem" method="post">
     <div class="col-12 col-sm-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2 col-xl-8" id="formdiv">
-       
         <h1>Add Food Item</h1>
         <div class="form-group">
             <label>Enter Food Name</label>
@@ -38,29 +38,60 @@
             <input class="form-control" placeholder="Price" asp-for="Price" />
             <span asp-validation-for="Price" class="text-danger"></span>
         </div>
-        <div class="form-group">
-            <label>Enter Food Description</label>
-            <textarea class="form-control" rows="5" asp-for="Description" placeholder="Write about food here..."></textarea>
-            <span asp-validation-for="Description" class="text-danger"></span>
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <label>Enter Food Description</label>
+                    <textarea class="form-control" rows="5" asp-for="Description" placeholder="Write about food here..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <label>Select Meal Hour</label>
+                    <select asp-items="@ViewBag.MealHour" class="form-control" asp-for="MealHourId">
+                        <option disabled hidden selected>Please Select Meal Hour</option>
+                    </select>
+                    <span asp-validation-for="MealHourId" class="text-danger"></span>
+                </div>
+            </div>
         </div>
+        <img src="~/images/default.jpg" id="output" style="height:150px;width:150px;" />
         <div class="form-group">
-            <label>Select Meal Hour</label>
-            <select asp-items="@ViewBag.MealHour" class="form-control" asp-for="MealHourId">
-                <option disabled hidden selected>Please Select Meal Hour</option>
-            </select>  
-            <span asp-validation-for="MealHourId" class="text-danger"></span>
+            <label>Photo</label>
+            <div class="custom-file">
+                <input asp-for="Photopath" id="input" class="form-control custom-file-input" style="cursor:pointer;">
+                <label class="custom-file-label" style="overflow:hidden;">Choose File...</label>
+            </div>
         </div>
         <button class="btn btn-dark">Add</button>
     </div>
 </form>
 
 @section Scripts{
-
-    <script type="text/javascript">        
+    <script type="text/javascript">      
         var a = null;
         var b = null;
          $(document).ready(function () {
-                  
+
+             $('.custom-file-input').on("change", function () {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).next('.custom-file-label').html(fileName);
+            });
+
+            function readURL(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#output').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+            $("#input").change(function () {
+                readURL(this);
+            });
+
              a ="@ViewBag.Validation"
              b ="@ViewBag.Success"
              console.log(a);

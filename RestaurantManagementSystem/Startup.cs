@@ -46,13 +46,11 @@ namespace RestaurantManagementSystem
                 options.Cookie.IsEssential = true;
             });
             services.AddControllersWithViews();
-            
-            
+                        
             services.AddDbContext<DatabaseContext>(Options => 
             Options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddIdentity<IdentityUser, IdentityRole>()
             .AddEntityFrameworkStores<DatabaseContext>();
-
         
             services.Configure<IdentityOptions>(options =>
             {
@@ -67,11 +65,8 @@ namespace RestaurantManagementSystem
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
                 options.Lockout.MaxFailedAccessAttempts = 3;
                 options.Lockout.AllowedForNewUsers = true;
-
                
             });
-
-
 
         }
 
@@ -106,8 +101,7 @@ namespace RestaurantManagementSystem
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
-
-           
+          
             app.UseEndpoints(endpoints =>
             {
                

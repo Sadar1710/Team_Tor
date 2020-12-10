@@ -1,11 +1,12 @@
 ﻿
+@model RestaurantManagementSystem.Areas.Admin.ViewModels.FoodItemVm
 @{
     ViewData["Title"] = "UpdateFoodItem";
+    var pp = "~/images/" + (Model.ExistingPhoto ?? "default.jpg");
+
 }
 
 <h1>UpdateFoodItem</h1>
-
-@model RestaurantManagementSystem.Areas.Admin.ViewModels.FoodItemVm
 
 <style>
 
@@ -29,7 +30,7 @@
             height: 15vh;
         }
 </style>
-<form class="row mt-5" asp-area="Admin" asp-controller="Home"
+<form enctype="multipart/form-data" class="forms-sample row mt-5" asp-area="Admin" asp-controller="Home"
       asp-action="UpdatefoodItem" method="post">
     <div class="col-12 col-sm-8 offset-sm-2 col-md-8 offset-md-2 col-lg-8 col-xl-8" id="formdiv">
         <h1>Update Food Item</h1>
@@ -43,17 +44,57 @@
             <label>Set Price</label>
             <input class="form-control" placeholder="Price" asp-for="Price" />
         </div>
-        <div class="form-group">
-            <label>Enter Food Description</label>
-            <textarea class="form-control" rows="5" asp-for="Description" placeholder="Write about food here..."></textarea>
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <label>Enter Food Description</label>
+                    <textarea class="form-control" rows="5" asp-for="Description" placeholder="Write about food here..."></textarea>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <label>Select Meal Hour</label>
+                    <select asp-items="@ViewBag.MealHour" class="form-control" asp-for="MealHourId"></select>
+                </div>
+            </div>
         </div>
+        <input type="hidden" asp-for="ExistingPhoto" />
+        <img src="@pp" asp-append-version="true" id="output" style="height:150px;width:150px;" />
         <div class="form-group">
-            <label>Select Meal Hour</label>
-            <select asp-items="@ViewBag.MealHour" class="form-control" asp-for="MealHourId"></select>
+            <label>Photo</label>
+            <div class="custom-file">
+                <input asp-for="Photopath" id="input" class="form-control custom-file-input" style="cursor:pointer;">
+                <label class="custom-file-label" style="overflow:hidden;">Click here to change photo</label>
+            </div>
         </div>
         <button class="btn btn-dark">Update</button>
     </div>
 </form>
 
+@section Scripts{
+    <script type="text/javascript">
+         $(document).ready(function () {
 
+             $('.custom-file-input').on("change", function () {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).next('.custom-file-label').html(fileName);
+            });
+
+            function readURL(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#output').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+            $("#input").change(function () {
+                readURL(this);
+            });
+
+            
+        });
+    </script>
+}
 

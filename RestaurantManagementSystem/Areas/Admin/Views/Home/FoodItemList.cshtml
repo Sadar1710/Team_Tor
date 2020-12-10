@@ -33,19 +33,21 @@
                     <th>Food Item</th>
                     <th>Price (BDT)</th>
                     <th>Description</th>
+                    <th>Image</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
-
+                    var photo = "~/images/" + (item.ExistingPhoto ?? "default.jpg");
                     <tr>
                         <td>@item.Serial</td>
                         <td>@item.MealHourName</td>
                         <td>@item.FoodName</td>
                         <td>@item.Price</td>
                         <td>@item.Description</td>
+                        <td><img src="@photo" asp-append-version="true" style="height:50px;width:80px;"></td>
                         <td>
                             <a asp-action="UpdateFoodItem" asp-controller="Home" asp-area="Admin"
                                asp-route-id="@item.FoodItemId">

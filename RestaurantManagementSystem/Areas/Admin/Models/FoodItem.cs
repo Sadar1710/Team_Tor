@@ -19,6 +19,7 @@ namespace RestaurantManagementSystem.Areas.Admin.Models
         public string  Description  { get; set; }
         public int MealHourId { get; set; }
         public MealHour MealHour { get; set; }
+        public string PhotoPath { get; set; }
         public virtual ICollection<RequiredMaterial> RequiredMaterials { get; set; }
     }
 }

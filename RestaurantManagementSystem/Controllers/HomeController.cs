@@ -55,6 +55,7 @@ namespace RestaurantManagementSystem.Controllers
                                Description = a.Description,
                                Price = a.Price,
                                FoodItemId = a.FoodItemId,
+                               PhotoPath=a.PhotoPath,
                            }).Distinct();
             var fooditemvmlist = new List<FoodItemVm>();
             foreach (var item in fooditem)
@@ -67,6 +68,7 @@ namespace RestaurantManagementSystem.Controllers
                     Description = item.Description,
                     Price = item.Price,
                     FoodItemId = item.FoodItemId,
+                    ExistingPhoto=item.PhotoPath
                 };
                 fooditemvmlist.Add(fooditemvm);
             }
@@ -128,7 +130,12 @@ namespace RestaurantManagementSystem.Controllers
             }
             return Json(total);
         }
-
+        [HttpGet]
+        public JsonResult GetCoupon()
+        {
+            var offer = _context.Offer.LastOrDefault();
+            return Json(offer);
+        }
         [HttpGet]
         [HttpPost]
         public JsonResult SetCartValue(int id)
@@ -264,8 +271,13 @@ namespace RestaurantManagementSystem.Controllers
 
             return View();
         }
-        
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [HttpGet]
+        public JsonResult GetFoodInfo(int id)
+        {
+            var data = _context.FoodItems.AsNoTracking().Where(a => a.FoodItemId == id).FirstOrDefault();
+            return Json(data);
+        }
+       [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
